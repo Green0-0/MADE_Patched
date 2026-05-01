@@ -11,7 +11,7 @@
 #SBATCH --mem=128G
 #SBATCH --gres=gpu:a6000:1
 
-source "${VLLM_VENV_PATH}/bin/activate"
+source .venv/bin/activate
 
 export CUDA_HOME=/usr/project/xtmp/cuda-13.0
 export PATH=$CUDA_HOME/bin:$PATH
