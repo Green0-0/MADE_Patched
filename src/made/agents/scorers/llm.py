@@ -99,10 +99,12 @@ class LLMScorer(Scorer):
 
         with dspy.settings.context(
             lm=dspy.LM(
-                model=self.llm_config.model,
-                max_tokens=self.llm_config.max_output_tokens,
-                temperature=self.llm_config.temperature,
-                cache=self.llm_config.cache,
+                model=self.llm_config.get("model", "openai/QuantTrio/Qwen3.5-9B-AWQ"),
+                max_tokens=self.llm_config.get("max_tokens", self.llm_config.get("max_output_tokens")),
+                temperature=self.llm_config.get("temperature"),
+                top_p=self.llm_config.get("top_p"),
+                top_k=self.llm_config.get("top_k"),
+                cache=self.llm_config.get("cache", False),
             )
         ):
             stability_tolerance = state.get("stability_tolerance", 1e-8)

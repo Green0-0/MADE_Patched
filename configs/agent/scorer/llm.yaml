@@ -3,8 +3,10 @@ _target_: made.agents.scorers.LLMScorer
 # LLM backend configuration (mirrors planner config)
 llm_config:
   model: "openai/QuantTrio/Qwen3.5-9B-AWQ" 
-  max_output_tokens: null
-  temperature: null
+  max_tokens: 16384
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 20
   cache: false
 
 # Context window management - random sample if exceeded

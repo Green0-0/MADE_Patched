@@ -55,7 +55,7 @@ trap cleanup_vllm EXIT
   --port "${VLLM_PORT}" \
   --model "${MODEL_NAME}" \
   --gpu-memory-utilization 0.75 \
-  --max-model-len 32768 &
+  --max-model-len 49152 &
 VLLM_PID=$!
 
 python - <<'PY'

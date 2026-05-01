@@ -52,3 +52,4 @@ Note: In addition, some other slight modifications were made to the pyproject.to
 
 5. Extremely substantial changes were made in ase_potential.py to prevent race conditions when loading and running parallelized MACE models.
 
+6. Updated llm.py (both), llm_react_orchestrator.py to take sampling parameters so that it would be appropriate for the qwen models.

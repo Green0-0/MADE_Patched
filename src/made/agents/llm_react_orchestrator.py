@@ -920,14 +920,20 @@ class LLMReActOrchestratorAgent(Agent):
         try:
             model = self.llm_config.get("model", "anthropic/claude-sonnet-4-20250514")
             cache = self.llm_config.get("cache", True)
-            max_tokens = self.llm_config.get("max_output_tokens")
+            max_tokens = self.llm_config.get("max_tokens", self.llm_config.get("max_output_tokens"))
             temperature = self.llm_config.get("temperature")
+            top_p = self.llm_config.get("top_p")
+            top_k = self.llm_config.get("top_k")
 
             kwargs = {"cache": cache}
-            if max_tokens:
+            if max_tokens is not None:
                 kwargs["max_tokens"] = max_tokens
             if temperature is not None:
                 kwargs["temperature"] = temperature
+            if top_p is not None:
+                kwargs["top_p"] = top_p
+            if top_k is not None:
+                kwargs["top_k"] = top_k
 
             self.lm = dspy.LM(model, **kwargs)
             logger.info(f"[LLMReActOrchestrator] DSPy LM: {model}")
