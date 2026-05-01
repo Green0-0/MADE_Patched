@@ -5,6 +5,7 @@ Intended for use with MLIPs (e.g., MACE, NequIP, CHGNet-ASE wrappers) or DFT
 calculators. It converts `pymatgen` Structures to ASE `Atoms`, evaluates the
 potential energy, and returns both total and per-atom energies.
 """
+import queue
 
 import copy
 import json
@@ -46,33 +47,31 @@ class ASEPotentialOracle(Oracle):
         num_workers: int = 1,
     ) -> None:
         super().__init__(num_workers=num_workers)
-        self._factory_lock = threading.Lock()
-        # Store calculator factory for thread-safe creation
+        self._calculator_queue = queue.Queue()
+
         if callable(calculator):
-            self._calculator_factory = calculator
-            # Create initial calculator for single-threaded case
-            self.calculator: Calculator = calculator()
+            self.calculator = calculator()
+            self._calculator_queue.put(self.calculator)
+            if self.num_workers > 1:
+                logger.info(f"Loading {self.num_workers - 1} additional calculators sequentially for thread pool")
+                for _ in range(self.num_workers - 1):
+                    self._calculator_queue.put(calculator())
         else:
-            # For non-callable calculators, try to create copies for thread-safety
             calc_instance = calculator
-
-            # Try to use copy.deepcopy if the calculator supports it
-            # Some calculators (like ORB) may have complex state that can't be easily copied
-            def create_calc_copy():
-                try:
-                    # Attempt deep copy
-                    return copy.deepcopy(calc_instance)
-                except (TypeError, AttributeError, ValueError) as e:
-                    logger.warning(
-                        f"Could not copy calculator for thread-local use: {e}. "
-                        "Using same instance - this may cause thread-safety issues with num_workers > 1. "
-                        "Consider passing a callable factory instead."
-                    )
-                    return calc_instance
-
-            self._calculator_factory = create_calc_copy
-            self.calculator: Calculator = calc_instance
-        self._thread_local = threading.local()
+            self.calculator = calc_instance
+            self._calculator_queue.put(self.calculator)
+            if self.num_workers > 1:
+                logger.info(f"Copying {self.num_workers - 1} additional calculators for thread pool")
+                for _ in range(self.num_workers - 1):
+                    try:
+                        self._calculator_queue.put(copy.deepcopy(calc_instance))
+                    except (TypeError, AttributeError, ValueError) as e:
+                        logger.warning(
+                            f"Could not copy calculator for thread pool use: {e}. "
+                            "Using same instance - this may cause thread-safety issues with num_workers > 1. "
+                            "Consider passing a callable factory instead."
+                        )
+                        self._calculator_queue.put(calc_instance)
         self._element_reference_energies: dict[str, float] = {}
         self._adaptor = AseAtomsAdaptor()
         self.relax = relax
@@ -93,38 +92,31 @@ class ASEPotentialOracle(Oracle):
             )
             self._element_reference_energies = {}
 
-    def _get_thread_calculator(self) -> Calculator:
-        """Get a thread-local calculator instance."""
-        if not hasattr(self._thread_local, "calculator"):
-            with getattr(self, "_factory_lock", threading.Lock()):
-                self._thread_local.calculator = self._calculator_factory()
-        return self._thread_local.calculator
+    # (Removed _get_thread_calculator as we now use a pre-populated queue)
 
     # ---- Public API ----
     def evaluate(self, structure: Structure) -> dict[str, Any]:
-        # Use thread-local calculator if using multiple workers, otherwise use shared one
-        if self.num_workers > 1:
-            calc = self._get_thread_calculator()
-        else:
-            calc = self.calculator
+        calc = self._calculator_queue.get()
+        try:
+            atoms = self._adaptor.get_atoms(structure)
+            atoms.calc = calc
+            if self.relax:
+                atoms = self.relax_structure(atoms, calc=calc, **self.relax_kwargs)
 
-        atoms = self._adaptor.get_atoms(structure)
-        atoms.calc = calc
-        if self.relax:
-            atoms = self.relax_structure(atoms, calc=calc, **self.relax_kwargs)
+            total_energy = float(atoms.get_potential_energy())
+            num_atoms = int(len(atoms))
+            energy_per_atom = (
+                total_energy / float(num_atoms) if num_atoms > 0 else float("nan")
+            )
 
-        total_energy = float(atoms.get_potential_energy())
-        num_atoms = int(len(atoms))
-        energy_per_atom = (
-            total_energy / float(num_atoms) if num_atoms > 0 else float("nan")
-        )
-
-        return {
-            "energy": total_energy,
-            "energy_per_atom": energy_per_atom,
-            "natoms": num_atoms,
-            "formula": structure.composition.formula,
-        }
+            return {
+                "energy": total_energy,
+                "energy_per_atom": energy_per_atom,
+                "natoms": num_atoms,
+                "formula": structure.composition.formula,
+            }
+        finally:
+            self._calculator_queue.put(calc)
 
     def relax_structure(
         self, atoms: Atoms, calc: Calculator | None = None, **kwargs

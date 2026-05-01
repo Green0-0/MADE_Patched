@@ -50,8 +50,5 @@ self.dm = DiffusionModule.load_from_checkpoint(
 
 Note: In addition, some other slight modifications were made to the pyproject.toml, to make corrections after some other packages changed versions.
 
-5. Locked threads in ase_potential.py:
+5. Extremely substantial changes were made in ase_potential.py to prevent race conditions when loading and running parallelized MACE models.
 
-``self._factory_lock = threading.Lock() ... with getattr(self, "_factory_lock", threading.Lock()):``
-
-to prevent race conditions with parallelized MACE models
