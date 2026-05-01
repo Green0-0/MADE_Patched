@@ -24,6 +24,8 @@ dependencies = [
     "scipy>=1.16.1",
     "smact>=3.2.0",
     "wandb>=0.21.1",
+    "pytorch-lightning==2.6.1",
+    "torch==2.9.1",
 ]
 
 [build-system]
@@ -95,3 +97,13 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+torchvision = { index = "pytorch-cu130" }
+torchaudio = { index = "pytorch-cu130" }

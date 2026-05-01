@@ -220,6 +220,8 @@ wandb/
 
 # checkpoints
 *.ckpt
+ckpts
+checkpoints
 
 # include data
 !data/*

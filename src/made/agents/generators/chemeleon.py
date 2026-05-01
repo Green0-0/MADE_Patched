@@ -56,7 +56,7 @@ class ChemeleonGenerator(Generator):
 
         model_path = get_checkpoint_path(self.task, sample.DEFAULT_MODEL_PATH)
         self.dm = DiffusionModule.load_from_checkpoint(
-            model_path, map_location=self.device
+            model_path, map_location=self.device, weights_only=False
         )
         logger.info(f"Loaded Chemeleon model from {model_path}")
 
