@@ -11,6 +11,12 @@
 
 source .venv/bin/activate
 
+export CUDA_HOME=/usr/project/xtmp/cuda-13.0
+export PATH=$CUDA_HOME/bin:$PATH
+export CPATH=$CUDA_HOME/include:$CPATH
+export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+
 uv run scripts/run_baseline_experiments.py \
   --agent-configs random_generator_baseline \
   --systems-file ./data/systems_10_mp_20/systems_ternary_n10_maxatoms20_intermetallic_smact.json \

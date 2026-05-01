@@ -10,4 +10,10 @@
 
 source .venv/bin/activate
 
+export CUDA_HOME=/usr/project/xtmp/cuda-13.0
+export PATH=$CUDA_HOME/bin:$PATH
+export CPATH=$CUDA_HOME/include:$CPATH
+export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+
 python scripts/fix_chemeleon.py
