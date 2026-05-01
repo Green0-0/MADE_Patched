@@ -11,7 +11,7 @@
 
 source .venv/bin/activate
 
-export CUDA_HOME=/usr/project/xtmp/cuda-13.0
+export CUDA_HOME=/usr/local/cuda-12.8/
 export PATH=$CUDA_HOME/bin:$PATH
 export CPATH=$CUDA_HOME/include:$CPATH
 export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
