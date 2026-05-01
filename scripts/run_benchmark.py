@@ -340,7 +340,8 @@ def run_episode(
             save_checkpoint(checkpoint_path, agent_state, env_state, trajectory, query_count, wandb_run_id, metrics_history, config)
             # Commit volume to persist checkpoint (only on Modal)
             try:
-                checkpoint_volume.commit()
+                if config.experiment.infra == "modal":
+                    checkpoint_volume.commit()
             except NameError:
                 # checkpoint_volume not available (local execution)
                 pass
@@ -383,7 +384,8 @@ def run_episode(
             metrics_history = env.get_metrics_history()
         save_checkpoint(checkpoint_path, agent_state, env_state, trajectory, query_count, wandb_run_id, metrics_history, config)
         try:
-            checkpoint_volume.commit()
+            if config.experiment.infra == "modal":
+                checkpoint_volume.commit()
         except NameError:
             pass
         logger.info("Checkpoint saved before exit")
@@ -414,7 +416,8 @@ def run_episode(
         checkpoint_path.unlink()
         logger.info(f"Removed checkpoint file {checkpoint_path} after successful completion")
         try:
-            checkpoint_volume.commit()
+            if config.experiment.infra == "modal":
+                checkpoint_volume.commit()
         except NameError:
             pass
 
