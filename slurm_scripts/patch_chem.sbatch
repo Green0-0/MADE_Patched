@@ -7,6 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
+#SBATCH --gres=gpu:a5000:1
 
 source .venv/bin/activate
 
