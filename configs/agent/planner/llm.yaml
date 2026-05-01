@@ -8,7 +8,7 @@ num_candidates: 32
 max_context_entries: 20  # Max history entries to show LLM (null = no limit)
 
 llm_config:
-  model: openai/gpt-5.1 # anthropic/claude-sonnet-4-5-20250929 
+  model: "openai/QuantTrio/Qwen3.5-9B-AWQ" 
   max_output_tokens: null
   temperature: null
   cache: false  # cache responses in dspy

@@ -93,7 +93,4 @@ uv run scripts/run_baseline_experiments.py \
   --max-systems 10 \
   --budget 50 \
   --num-episodes 3 \
-  --use-wandb \
-  --hydra-overrides \
-  agent.llm_config.model="openai/QuantTrio/Qwen3.5-9B-AWQ" \
-  agent.llm_config.base_url="${OPENAI_BASE_URL}"
+  --use-wandb
