@@ -94,7 +94,7 @@ curl -s -X POST "${OPENAI_BASE_URL}/chat/completions" \
     "model": "'"${MODEL_NAME}"'",
     "messages": [
       {"role": "system", "content": "You are a helpful assistant."},
-      {"role": "user", "content": "Hello! Please reply with exactly: 'vLLM is working!'" }
+      {"role": "user", "content": "Hello! Please reply with exactly: \"vLLM is working!\"" }
     ],
     "max_tokens": 50
   }' > test_vllm_response.json
