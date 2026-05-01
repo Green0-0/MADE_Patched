@@ -2,8 +2,6 @@
 #SBATCH --job-name=test_vllm
 #SBATCH --output=slurm-%j-test-vllm.out
 #SBATCH --error=slurm-%j-test-vllm.err
-#SBATCH --partition=bhuwan
-#SBATCH --account=bhuwan
 #SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
