@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=exp_chem_mlip_made
-#SBATCH --output=slurm-%j-chem-mlip.out
-#SBATCH --error=slurm-%j-chem-mlip.err
+#SBATCH --output=chem-mlip-%j.out
+#SBATCH --error=chem-mlip-%j.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

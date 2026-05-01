@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=exp_rand_made
-#SBATCH --output=slurm-%j-exp-rand.out
-#SBATCH --error=slurm-%j-exp-rand.err
+#SBATCH --output=exp-rand-%j.out
+#SBATCH --error=exp-rand-%j.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

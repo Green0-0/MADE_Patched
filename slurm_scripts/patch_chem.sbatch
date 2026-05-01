@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=patch_chem_made
-#SBATCH --output=slurm-%j-patch-chem.out
-#SBATCH --error=slurm-%j-patch-chem.err
+#SBATCH --output=patch-chem-%j.out
+#SBATCH --error=patch-chem-%j.err
 #SBATCH --time=0-01:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

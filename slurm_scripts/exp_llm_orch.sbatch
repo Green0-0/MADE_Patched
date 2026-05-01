@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=exp_llm_orch_made
-#SBATCH --output=slurm-%j-llm-orch.out
-#SBATCH --error=slurm-%j-llm-orch.err
+#SBATCH --output=llm-orch-%j.out
+#SBATCH --error=llm-orch-%j.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

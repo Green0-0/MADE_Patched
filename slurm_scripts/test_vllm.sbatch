@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=test_vllm
-#SBATCH --output=slurm-%j-test-vllm.out
-#SBATCH --error=slurm-%j-test-vllm.err
+#SBATCH --output=test-vllm-%j.out
+#SBATCH --error=test-vllm-%j.err
 #SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

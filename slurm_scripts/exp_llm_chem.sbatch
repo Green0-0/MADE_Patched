@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=exp_llm_chem_made
-#SBATCH --output=slurm-%j-llm-chem-rand.out
-#SBATCH --error=slurm-%j-llm-chem-rand.err
+#SBATCH --output=llm-chem-rand-%j.out
+#SBATCH --error=llm-chem-rand-%j.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
