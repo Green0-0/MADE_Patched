@@ -46,6 +46,7 @@ class ASEPotentialOracle(Oracle):
         num_workers: int = 1,
     ) -> None:
         super().__init__(num_workers=num_workers)
+        self._factory_lock = threading.Lock()
         # Store calculator factory for thread-safe creation
         if callable(calculator):
             self._calculator_factory = calculator
@@ -95,7 +96,8 @@ class ASEPotentialOracle(Oracle):
     def _get_thread_calculator(self) -> Calculator:
         """Get a thread-local calculator instance."""
         if not hasattr(self._thread_local, "calculator"):
-            self._thread_local.calculator = self._calculator_factory()
+            with getattr(self, "_factory_lock", threading.Lock()):
+                self._thread_local.calculator = self._calculator_factory()
         return self._thread_local.calculator
 
     # ---- Public API ----

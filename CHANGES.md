@@ -47,3 +47,11 @@ self.dm = DiffusionModule.load_from_checkpoint(
 ```
 
 4. As it turns out, it may have been running on CPU because torch did not install with CUDA due to ``uv sync`` defaulting to CPU-only torch installation. I have changed to pyproject.toml and updated the uv lock accordingly. Also pinned to a non-compromised version of pytorch lightning (see https://github.com/Lightning-AI/pytorch-lightning/security/advisories/GHSA-w37p-236h-pfx3)
+
+Note: In addition, some other slight modifications were made to the pyproject.toml, to make corrections after some other packages changed versions.
+
+5. Locked threads in ase_potential.py:
+
+``self._factory_lock = threading.Lock() ... with getattr(self, "_factory_lock", threading.Lock()):``
+
+to prevent race conditions with parallelized MACE models
