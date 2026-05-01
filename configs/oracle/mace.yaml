@@ -23,5 +23,5 @@ relax_kwargs:
 
 # Number of worker threads for parallel evaluation (1 = sequential, >1 = parallel)
 # Structures will be automatically batched across workers
-num_workers: 1
+num_workers: 16
 
