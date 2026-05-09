@@ -66,3 +66,7 @@ pred = MockPred()
 ```
 
 8. Testing langfuse integration for detailed logging on the llm prompts. Modified src/made/agents/__init__.py to initialize langfuse when a key is detected.
+
+9. **Significant** changes to run_multi_systems.py and run_baseline_experiments.py to allow for slurm parallelization.
+
+10. Cleaned up wandb to be neater and properly group.
