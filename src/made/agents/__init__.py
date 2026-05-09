@@ -12,7 +12,11 @@ logger = logging.getLogger(__name__)
 if os.environ.get("LANGFUSE_PUBLIC_KEY"):
     try:
         import langfuse
+        from langfuse import get_client
         from openinference.instrumentation.dspy import DSPyInstrumentor
+
+        # Initialize the Langfuse client singleton (this configures the OpenTelemetry hook)
+        get_client()
 
         DSPyInstrumentor().instrument()
         logger.info("Langfuse DSPy instrumentation enabled.")
