@@ -26,6 +26,8 @@ dependencies = [
     "wandb>=0.21.1",
     "pytorch-lightning==2.6.1",
     "torch==2.9.1",
+    "langfuse>=2.57.2",
+    "openinference-instrumentation-dspy>=0.1.18",
 ]
 
 [build-system]

@@ -125,17 +125,23 @@ class LLMPlanner(Planner):
                 include_recent_trial=self.context_config.include_recent_trial,
                 max_entries=self.max_context_entries,
             )
-            pred = self.planner(
-                context=context,
-                elements=state.get("elements", []),
-                max_stoichiometry=self.max_stoichiometry,
-                num_compositions=self.num_compositions,
-                stability_tolerance=stability_tolerance,
-            )
-            self.history.append(pred.toDict())
-            logger.info(
-                f"LLMPlanner proposed compositions: {pred.compositions}, reasoning: {pred.reasoning}"
-            )
+            try:
+                pred = self.planner(
+                    context=context,
+                    elements=state.get("elements", []),
+                    max_stoichiometry=self.max_stoichiometry,
+                    num_compositions=self.num_compositions,
+                    stability_tolerance=stability_tolerance,
+                )
+                self.history.append(pred.toDict())
+                logger.info(
+                    f"LLMPlanner proposed compositions: {pred.compositions}, reasoning: {pred.reasoning}"
+                )
+            except Exception as e:
+                logger.error(f"LLMPlanner failed to generate or parse response: {e}")
+                class MockPred:
+                    compositions = []
+                pred = MockPred()
 
         # Parse compositions and validate against constraints
         allowed_elements = set(state.get("elements", []))

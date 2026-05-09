@@ -53,3 +53,16 @@ Note: In addition, some other slight modifications were made to the pyproject.to
 5. Extremely substantial changes were made in ase_potential.py to prevent race conditions when loading and running parallelized MACE models.
 
 6. Updated llm.py (both), llm_react_orchestrator.py to take sampling parameters so that it would be appropriate for the qwen models.
+
+7. Updated llm.py in planners so that it would not erroneously crash when the llm outputs a misformatted message:
+```python
+try:
+...
+except Exception as e:
+logger.error(f"LLMPlanner failed to generate or parse response: {e}")
+class MockPred:
+    compositions = []
+pred = MockPred()
+```
+
+8. Testing langfuse integration for detailed logging on the llm prompts. Modified src/made/agents/__init__.py to initialize langfuse when a key is detected.
