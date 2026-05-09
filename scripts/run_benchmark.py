@@ -270,10 +270,11 @@ def run_episode(
             )
         else:
             # Start new wandb run
+            wandb_group = config.logger.get("wandb_group", wandb_run_name)
             wandb.init(
                 project=config.logger.get("wandb_project", "made-benchmark"),
                 entity=config.logger.get("wandb_entity", None),
-                group=wandb_run_name,
+                group=wandb_group,
                 name=f"{wandb_run_name}_ep_{episode_id}"
                 if system_id is None
                 else f"{wandb_run_name}_{system_id}_ep_{episode_id}",
@@ -282,7 +283,10 @@ def run_episode(
                 settings=wandb.Settings(code_dir="."),
             )
             wandb_run_id = wandb.run.id
-        wandb.config.update(flatten_dict(OmegaConf.to_container(config, resolve=False)))
+        wandb.config.update(
+            flatten_dict(OmegaConf.to_container(config, resolve=False)),
+            allow_val_change=True,
+        )
 
     # Set checkpoint_path if not already set (for new episodes or when no checkpoint found)
     if checkpoint_path is None:

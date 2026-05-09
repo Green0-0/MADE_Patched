@@ -105,10 +105,16 @@ def run_multi_systems(config: DictConfig) -> None:
             
         system_index = config.experiment.get("system_index", None)
         if system_index is not None:
-            init_kwargs["name"] = f"idx{system_index}"
+            if wandb_group:
+                init_kwargs["name"] = f"{wandb_group}_idx{system_index}"
+            else:
+                init_kwargs["name"] = f"idx{system_index}"
             
         wandb.init(**init_kwargs)
-        wandb.config.update(flatten_dict(OmegaConf.to_container(config, resolve=False)))
+        wandb.config.update(
+            flatten_dict(OmegaConf.to_container(config, resolve=False)),
+            allow_val_change=True,
+        )
         wandb_run_name = wandb.run.name
         wandb_run_id = wandb.run.id
     else:
