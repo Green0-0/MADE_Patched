@@ -129,7 +129,7 @@ def run_single_baseline_experiment(
     ]
 
     if system_index is not None:
-        config_overrides.append(f"experiment.system_index={system_index}")
+        config_overrides.append(f"+experiment.system_index={system_index}")
 
     if seed is not None:
         config_overrides.append(f"experiment.seed={seed}")
