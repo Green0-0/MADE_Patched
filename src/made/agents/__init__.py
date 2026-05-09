@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # Initialize Langfuse DSPy tracing if environment variables are present
 if os.environ.get("LANGFUSE_PUBLIC_KEY"):
     try:
-        from langfuse import langfuse
+        import langfuse
         from openinference.instrumentation.dspy import DSPyInstrumentor
 
         DSPyInstrumentor().instrument()
