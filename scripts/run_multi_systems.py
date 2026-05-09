@@ -122,6 +122,18 @@ def run_multi_systems(config: DictConfig) -> None:
     max_systems = config.experiment.get("max_systems", None)
     if max_systems is not None:
         systems = systems[: int(max_systems)]
+
+    # Optional index for running a specific system (e.g., via SLURM job array)
+    system_index = config.experiment.get("system_index", None)
+    if system_index is not None:
+        system_index = int(system_index)
+        if 0 <= system_index < len(systems):
+            systems = [systems[system_index]]
+        else:
+            raise ValueError(
+                f"system_index {system_index} is out of bounds for {len(systems)} systems"
+            )
+
     if not systems:
         raise ValueError(
             "experiment.systems must be a non-empty list of element lists, e.g., [[Co, Nb, Sn], [Li, O]]"

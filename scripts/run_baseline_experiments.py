@@ -67,6 +67,7 @@ def run_single_baseline_experiment(
     wandb_project: str = "made-baselines",
     wandb_tags: list[str] | None = None,
     resume: bool = True,
+    system_index: int | None = None,
 ) -> Path:
     """
     Run a single baseline experiment.
@@ -88,7 +89,11 @@ def run_single_baseline_experiment(
         Path to output directory
     """
     # Create output directory (timestamp is already in output_base_dir)
-    output_dir = Path(output_base_dir) / f"{agent_config}_{Path(systems_file).stem}_{max_systems}systems_{budget}queries_{int(stability_tolerance * 1000)}stabilitymeV"
+    dir_name = f"{agent_config}_{Path(systems_file).stem}_{max_systems}systems"
+    if system_index is not None:
+        dir_name += f"_idx{system_index}"
+    dir_name += f"_{budget}queries_{int(stability_tolerance * 1000)}stabilitymeV"
+    output_dir = Path(output_base_dir) / dir_name
     output_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"Running experiment: {agent_config}")
@@ -116,6 +121,9 @@ def run_single_baseline_experiment(
         f"++agent.planner.max_stoichiometry={max_stoichiometry}",
         f"environment.max_stoichiometry={max_stoichiometry}",
     ]
+
+    if system_index is not None:
+        config_overrides.append(f"experiment.system_index={system_index}")
 
     if seed is not None:
         config_overrides.append(f"experiment.seed={seed}")
@@ -250,6 +258,7 @@ def run_multiple_baseline_experiments(
     wandb_tags: list[str] | None = None,
     continue_on_error: bool = True,
     resume: bool = True,
+    system_index: int | None = None,
 ) -> dict[str, Path | None]:
     """
     Run multiple baseline experiments.
@@ -297,6 +306,7 @@ def run_multiple_baseline_experiments(
                 wandb_project=wandb_project,
                 wandb_tags=wandb_tags,
                 resume=resume,
+                system_index=system_index,
             )
             results[agent_config] = output_dir
         except Exception as e:
@@ -329,6 +339,12 @@ def main():
         type=int,
         default=20,
         help="Number of systems to run (default: 20)",
+    )
+    parser.add_argument(
+        "--system-index",
+        type=int,
+        default=None,
+        help="Specific system index to run (optional, for array jobs)",
     )
     parser.add_argument(
         "--budget",
@@ -443,6 +459,7 @@ def main():
         wandb_tags=args.wandb_tags,
         continue_on_error=not args.stop_on_error,
         resume=args.resume,
+        system_index=args.system_index,
     )
 
     # Print summary

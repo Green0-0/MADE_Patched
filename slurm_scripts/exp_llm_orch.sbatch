@@ -1,13 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=exp_llm_orch_made
-#SBATCH --output=llm-orch-%j.out
-#SBATCH --error=llm-orch-%j.err
+#SBATCH --output=llm-orch-%A_%a.out
+#SBATCH --error=llm-orch-%A_%a.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
 #SBATCH --gres=gpu:a6000:1
+#SBATCH --array=1-10
 
 source .venv/bin/activate
 
@@ -38,7 +39,7 @@ PY
 
 export MODEL_NAME="QuantTrio/Qwen3.5-9B-AWQ"
 export VLLM_HOST="127.0.0.1"
-export VLLM_PORT=$(python -c "import socket; s = socket.socket(); s.bind(('', 0)); print(s.getsockname()[1]); s.close()")
+export VLLM_PORT=$(( 8000 + SLURM_ARRAY_TASK_ID ))
 export OPENAI_BASE_URL="http://${VLLM_HOST}:${VLLM_PORT}/v1"
 export OPENAI_API_KEY="${OPENAI_API_KEY:-local}"
 
@@ -95,6 +96,7 @@ uv run scripts/run_baseline_experiments.py \
   --agent-configs llm_react_orchestrator \
   --systems-file ./data/systems_10_mp_20/systems_ternary_n10_maxatoms20_intermetallic_smact.json \
   --max-systems 10 \
+  --system-index $((SLURM_ARRAY_TASK_ID - 1)) \
   --budget 50 \
-  --num-episodes 3 \
+  --num-episodes 5 \
   --use-wandb
