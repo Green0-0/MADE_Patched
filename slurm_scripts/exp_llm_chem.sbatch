@@ -39,7 +39,8 @@ PY
 
 export MODEL_NAME="QuantTrio/Qwen3.5-9B-AWQ"
 export VLLM_HOST="127.0.0.1"
-export VLLM_PORT=$(( 8000 + SLURM_ARRAY_TASK_ID ))
+export VLLM_PORT=$(( 31000 + SLURM_ARRAY_TASK_ID ))
+export MASTER_PORT=$(( 32000 + SLURM_ARRAY_TASK_ID ))
 export OPENAI_BASE_URL="http://${VLLM_HOST}:${VLLM_PORT}/v1"
 export OPENAI_API_KEY="${OPENAI_API_KEY:-local}"
 
