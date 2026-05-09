@@ -93,11 +93,21 @@ def run_multi_systems(config: DictConfig) -> None:
     rb = _import_run_benchmark()
 
     if config.logger.get("use_wandb", False):
-        wandb.init(
-            project=config.logger.get("wandb_project", "made-benchmark"),
-            entity=config.logger.get("wandb_entity", None),
-            tags=config.logger.get("wandb_tags", ["benchmark", "multi-system"]),
-        )
+        init_kwargs = {
+            "project": config.logger.get("wandb_project", "made-benchmark"),
+            "entity": config.logger.get("wandb_entity", None),
+            "tags": config.logger.get("wandb_tags", ["benchmark", "multi-system"]),
+        }
+        
+        wandb_group = config.logger.get("wandb_group", None)
+        if wandb_group:
+            init_kwargs["group"] = wandb_group
+            
+        system_index = config.experiment.get("system_index", None)
+        if system_index is not None:
+            init_kwargs["name"] = f"idx{system_index}"
+            
+        wandb.init(**init_kwargs)
         wandb.config.update(flatten_dict(OmegaConf.to_container(config, resolve=False)))
         wandb_run_name = wandb.run.name
         wandb_run_id = wandb.run.id

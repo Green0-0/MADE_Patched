@@ -89,10 +89,15 @@ def run_single_baseline_experiment(
         Path to output directory
     """
     # Create output directory (timestamp is already in output_base_dir)
-    dir_name = f"{agent_config}_{Path(systems_file).stem}_{max_systems}systems"
+    base_dir_name = f"{agent_config}_{Path(systems_file).stem}_{max_systems}systems"
+    dir_name = base_dir_name
     if system_index is not None:
         dir_name += f"_idx{system_index}"
-    dir_name += f"_{budget}queries_{int(stability_tolerance * 1000)}stabilitymeV"
+    
+    suffix = f"_{budget}queries_{int(stability_tolerance * 1000)}stabilitymeV"
+    dir_name += suffix
+    wandb_group_name = base_dir_name + suffix
+    
     output_dir = Path(output_base_dir) / dir_name
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -120,6 +125,7 @@ def run_single_baseline_experiment(
         f"++agent.max_stoichiometry={max_stoichiometry}",
         f"++agent.planner.max_stoichiometry={max_stoichiometry}",
         f"environment.max_stoichiometry={max_stoichiometry}",
+        f"++logger.wandb_group={wandb_group_name}",
     ]
 
     if system_index is not None:
