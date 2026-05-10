@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --gres=gpu:a6000:1
+#SBATCH --gres=gpu:a5000:1
 #SBATCH --array=1-10
 
 source .venv/bin/activate
@@ -18,80 +18,56 @@ export CPATH=$CUDA_HOME/include:$CPATH
 export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
-VLLM_VENV_PATH="${VLLM_VENV_PATH:-${PWD}/.vllm}"
-VLLM_PYTHON="${VLLM_VENV_PATH}/bin/python"
+ENDPOINT_FILE="${PWD}/.vllm_endpoint"
+HEARTBEAT_FILE="${PWD}/.vllm_heartbeat"
 
-if [[ ! -x "${VLLM_PYTHON}" ]]; then
-  echo "vLLM venv not found: ${VLLM_VENV_PATH}" >&2
-  exit 1
-fi
+echo "Waiting for vLLM endpoint file at ${ENDPOINT_FILE}..."
+while [ ! -f "$ENDPOINT_FILE" ]; do
+  sleep 10
+done
 
-"${VLLM_PYTHON}" - <<'PY'
-import importlib
-import sys
-
-try:
-    importlib.import_module("vllm")
-except Exception as exc:
-    print(f"vllm import failed in vLLM venv: {exc}", file=sys.stderr)
-    raise
-PY
-
-export MODEL_NAME="QuantTrio/Qwen3.5-9B-AWQ"
-export VLLM_HOST="127.0.0.1"
-export VLLM_PORT=$(( 31000 + SLURM_ARRAY_TASK_ID * 100 ))
-export MASTER_PORT=$(( 32000 + SLURM_ARRAY_TASK_ID * 100 ))
-export OPENAI_BASE_URL="http://${VLLM_HOST}:${VLLM_PORT}/v1"
+export OPENAI_BASE_URL=$(cat "$ENDPOINT_FILE")
 export OPENAI_API_KEY="${OPENAI_API_KEY:-local}"
+echo "Discovered vLLM endpoint: $OPENAI_BASE_URL"
 
-cleanup_vllm() {
-  if [[ -n "${VLLM_PID:-}" ]]; then
-    kill "${VLLM_PID}" || true
-    wait "${VLLM_PID}" 2>/dev/null || true
-  fi
-}
-trap cleanup_vllm EXIT
-
-"${VLLM_PYTHON}" -m vllm.entrypoints.openai.api_server \
-  --host "${VLLM_HOST}" \
-  --port "${VLLM_PORT}" \
-  --model "${MODEL_NAME}" \
-  --gpu-memory-utilization 0.75 \
-  --max-model-len 49152 &
-VLLM_PID=$!
-
+# Verify endpoint is accessible before starting work
 python - <<'PY'
 import json
 import time
 import urllib.request
 import os
 
-# Grab the port we dynamically assigned in bash
-port = os.environ.get("VLLM_PORT")
-url = f"http://127.0.0.1:{port}/v1/models"
-
-deadline = time.time() + 600
-last_error = None
+url = os.environ.get("OPENAI_BASE_URL") + "/models"
+deadline = time.time() + 60
 
 while time.time() < deadline:
     try:
         with urllib.request.urlopen(url, timeout=5) as resp:
             if resp.status == 200:
-                data = json.loads(resp.read().decode("utf-8"))
-                if data.get("data"):
-                    print(f"vLLM ready on port {port}")
-                    raise SystemExit(0)
-    except Exception as exc:
-        last_error = exc
+                print("Successfully connected to the shared vLLM server.")
+                raise SystemExit(0)
+    except Exception:
         time.sleep(2)
 
-raise SystemExit(f"vLLM did not become ready on port {port}: {last_error}")
+raise SystemExit(f"Could not connect to vLLM endpoint at {url}")
 PY
 
-if ! kill -0 "${VLLM_PID}" 2>/dev/null; then
-  echo "vLLM process exited before baseline run" >&2
+if [ $? -ne 0 ]; then
   exit 1
 fi
+
+# Keep heartbeat updated while this job runs so the vLLM server stays alive
+touch "$HEARTBEAT_FILE"
+while true; do
+  sleep 300
+  touch "$HEARTBEAT_FILE"
+done &
+HEARTBEAT_PID=$!
+
+cleanup() {
+  kill $HEARTBEAT_PID 2>/dev/null || true
+}
+trap cleanup EXIT
 
 uv run scripts/run_baseline_experiments.py \
   --agent-configs llm_react_orchestrator \
