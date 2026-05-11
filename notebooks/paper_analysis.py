@@ -93,9 +93,11 @@ def analyze_results():
         summary_metrics = aggregate_metrics(all_final_metrics_list)
         
         # Compute AF and EF
+        is_baseline = (strategy_name == "Random Generator (Baseline)")
         curve_metrics = compute_discovery_curve_metrics(
             strategy_histories, 
-            baseline_histories=baseline_histories if baseline_histories else None
+            baseline_histories=baseline_histories if baseline_histories else None,
+            is_baseline=is_baseline,
         )
         
         # Extract metrics

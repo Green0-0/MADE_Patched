@@ -310,6 +310,7 @@ def compute_discovery_curve_metrics(
     metrics_histories: list[list[dict]],
     baseline_histories: list[list[dict]] | None = None,
     budget: int | None = None,
+    is_baseline: bool = False,
 ) -> dict[str, dict[str, float]]:
     """
     Compute discovery curve metrics (AF, EF, AUDC) from metrics histories.
@@ -318,9 +319,10 @@ def compute_discovery_curve_metrics(
         metrics_histories: List of metrics_history lists (one per episode)
         baseline_histories: Optional baseline for AF/EF computation
         budget: Total query budget (auto-detected if None)
+        is_baseline: If True, this IS the baseline policy; AF=1.0, EF=1.0 by definition
 
     Returns:
-        Dict with mean/std for each metric
+        Dict with mean/std/sem for each metric
     """
     if not metrics_histories:
         return {}
@@ -328,72 +330,88 @@ def compute_discovery_curve_metrics(
     # Extract discovery curves (queries_used, num_discoveries)
     curves = []
     for history in metrics_histories:
-        queries = [h.get("queries_used", i+1) for i, h in enumerate(history)]
-        discoveries = [h.get("num_newly_discovered_stable", 0) for h in history]
+        queries = [h["queries_used"] for h in history]
+        discoveries = [h["num_newly_discovered_stable"] for h in history]
         curves.append((queries, discoveries))
 
     if budget is None:
         budget = max(max(q) for q, _ in curves)
 
-    # Compute metrics for each episode
+    # Compute AUDC with proper normalization per paper formula: 2/B² ∫D(t)dt
+    # normalize=True in compute_area_under_curve divides by (queries[-1]²/2),
+    # which yields values in [0, 1] where 1 = one discovery per query from the start.
     audc_values = []
     for queries, discoveries in curves:
         audc = DiscoveryCurveMetrics.area_under_discovery_curve(
-            discoveries=discoveries, queries=queries, normalize=False
+            discoveries=discoveries, queries=queries, normalize=True
         )
         audc_values.append(audc)
 
     n = len(audc_values)
     results = {
-        "area_under_discovery_curve": {
+        "area_under_discovery_curve_normalized": {
             "mean": float(np.mean(audc_values)),
             "std": float(np.std(audc_values)),
             "sem": float(np.std(audc_values) / np.sqrt(n)) if n > 0 else 0.0,
         },
-        "area_under_discovery_curve_normalized": {
-            "mean": float(np.mean(audc_values)) / budget,
-            "std": float(np.std(audc_values)) / budget,
-            "sem": float(np.std(audc_values) / np.sqrt(n) / budget) if n > 0 else 0.0,
-        },
     }
 
-    # Compute AF/EF if baseline provided
-    if baseline_histories:
+    # Compute AF/EF
+    if is_baseline:
+        # Baseline compared to itself: AF=1.0, EF=1.0 by definition (zero variance)
+        results["acceleration_factor"] = {"mean": 1.0, "std": 0.0, "sem": 0.0}
+        results["enhancement_factor"] = {"mean": 1.0, "std": 0.0, "sem": 0.0}
+    elif baseline_histories:
         baseline_curves = []
         for history in baseline_histories:
-            queries = [h.get("queries_used", i+1) for i, h in enumerate(history)]
-            discoveries = [h.get("num_newly_discovered_stable", 0) for h in history]
+            queries = [h["queries_used"] for h in history]
+            discoveries = [h["num_newly_discovered_stable"] for h in history]
             baseline_curves.append((queries, discoveries))
 
         # Average baseline curve
-        baseline_discoveries = np.mean([d for _, d in baseline_curves], axis=0)
-        
-        # Create a fake baseline history to pass to DiscoveryCurveMetrics
+        baseline_disc_arrays = [np.array(d, dtype=float) for _, d in baseline_curves]
+        lengths = {len(d) for d in baseline_disc_arrays}
+        assert len(lengths) == 1, f"Baseline episodes have inconsistent lengths: {lengths}"
+        avg_baseline_discoveries = np.mean(baseline_disc_arrays, axis=0)
+
+        # Target for AF: average baseline final discovery count
+        avg_baseline_final = float(avg_baseline_discoveries[-1])
+
+        # Build averaged baseline history for comparison
         fake_baseline_history = [
             {"queries_used": float(i+1), "num_newly_discovered_stable": float(d)}
-            for i, d in enumerate(baseline_discoveries)
+            for i, d in enumerate(avg_baseline_discoveries)
         ]
 
         af_values = []
         ef_values = []
         for history in metrics_histories:
-            # Determine target discoveries like the old code (max / 2)
-            max_disc = max((h.get("num_newly_discovered_stable", 0) for h in history), default=0)
-            target = max_disc // 2 or 1
-            
-            af = DiscoveryCurveMetrics.acceleration_factor(
-                proposal_metrics_history=history,
-                baseline_metrics_history=fake_baseline_history,
-                target_discoveries=target,
-                metric_key="num_newly_discovered_stable"
-            )
+            # --- Enhancement Factor (EF) at final query ---
             ef = DiscoveryCurveMetrics.enhancement_factor(
                 proposal_metrics_history=history,
                 baseline_metrics_history=fake_baseline_history,
                 metric_key="num_newly_discovered_stable"
             )
-            af_values.append(float(af))
             ef_values.append(float(ef))
+
+            # --- Acceleration Factor (AF) ---
+            if avg_baseline_final < 1.0:
+                # Baseline finds < 1 structure on average.
+                # Paper convention (Appendix B.3): AF = budget
+                af_values.append(float(budget))
+            else:
+                # Floor ensures the averaged baseline always reaches the target
+                # (since avg_baseline_final >= target by definition of floor)
+                target = int(avg_baseline_final)
+                af = DiscoveryCurveMetrics.acceleration_factor(
+                    proposal_metrics_history=history,
+                    baseline_metrics_history=fake_baseline_history,
+                    target_discoveries=target,
+                    metric_key="num_newly_discovered_stable"
+                )
+                # acceleration_factor returns 0.0 when proposal can't reach target.
+                # This is correct: the policy is strictly worse than baseline.
+                af_values.append(float(af))
 
         n_af = len(af_values)
         results["acceleration_factor"] = {
