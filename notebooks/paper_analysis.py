@@ -105,8 +105,8 @@ def analyze_results():
         row["AF"] = curve_metrics.get("acceleration_factor", {}).get("mean", None)
         row["EF"] = curve_metrics.get("enhancement_factor", {}).get("mean", None)
         
-        # Note: keys extracted by results_analysis_utils.py have the "final/" prefix stripped
-        audc = summary_metrics.get("area_under_discovery_curve_normalized", {})
+        # Area Under Discovery Curve (normalized)
+        audc = curve_metrics.get("area_under_discovery_curve_normalized", {})
         row["AUDC"] = f"{audc.get('mean', 0):.3f}({audc.get('sem', 0):.3f})" if "mean" in audc else None
         
         msun = summary_metrics.get("novelty_stable_unique_novel_fraction", {})

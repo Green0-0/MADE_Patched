@@ -71,8 +71,11 @@ pred = MockPred()
 
 10. Cleaned up wandb to be neater and properly group.
 
+1. Fix in notebooks/results_analysis_utils.py where the arguments were wrong.
+
 TODO:
 - Remove DSPY, use native fc + thinking
 - Use one vLLM/TabbyAPI host on a master server, have jobs connect to that, downgrade jobs to a5000s and use a single rtx pro for the master server.
 - Add dflash or at least eagle for specdec, fix memory overhead so that 64k/128k ctx fits
 - Move to locally hosted langfuse; run a single job that persists for some number of days hosting the langfuse server
+
