@@ -339,7 +339,7 @@ def compute_discovery_curve_metrics(
     audc_values = []
     for queries, discoveries in curves:
         audc = DiscoveryCurveMetrics.area_under_discovery_curve(
-            queries, discoveries, budget
+            discoveries=discoveries, queries=queries, normalize=False
         )
         audc_values.append(audc)
 
@@ -367,20 +367,33 @@ def compute_discovery_curve_metrics(
 
         # Average baseline curve
         baseline_discoveries = np.mean([d for _, d in baseline_curves], axis=0)
+        
+        # Create a fake baseline history to pass to DiscoveryCurveMetrics
+        fake_baseline_history = [
+            {"queries_used": float(i+1), "num_newly_discovered_stable": float(d)}
+            for i, d in enumerate(baseline_discoveries)
+        ]
 
         af_values = []
         ef_values = []
-        for queries, discoveries in curves:
+        for history in metrics_histories:
+            # Determine target discoveries like the old code (max / 2)
+            max_disc = max((h.get("num_newly_discovered_stable", 0) for h in history), default=0)
+            target = max_disc // 2 or 1
+            
             af = DiscoveryCurveMetrics.acceleration_factor(
-                queries, discoveries, list(range(1, len(baseline_discoveries)+1)),
-                list(baseline_discoveries), k=max(discoveries) // 2 or 1
+                proposal_metrics_history=history,
+                baseline_metrics_history=fake_baseline_history,
+                target_discoveries=target,
+                metric_key="num_newly_discovered_stable"
             )
             ef = DiscoveryCurveMetrics.enhancement_factor(
-                queries, discoveries, list(range(1, len(baseline_discoveries)+1)),
-                list(baseline_discoveries), t=budget // 2
+                proposal_metrics_history=history,
+                baseline_metrics_history=fake_baseline_history,
+                metric_key="num_newly_discovered_stable"
             )
-            af_values.append(af)
-            ef_values.append(ef)
+            af_values.append(float(af))
+            ef_values.append(float(ef))
 
         n_af = len(af_values)
         results["acceleration_factor"] = {
