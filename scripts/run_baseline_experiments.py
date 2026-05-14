@@ -97,6 +97,14 @@ def run_single_baseline_experiment(
     suffix = f"_{budget}queries_{int(stability_tolerance * 1000)}stabilitymeV"
     dir_name += suffix
     wandb_group_name = base_dir_name + suffix
+    max_group_len = 128
+    if len(wandb_group_name) > max_group_len:
+        logger.warning(
+            "wandb_group name too long (%d), truncating to %d chars",
+            len(wandb_group_name),
+            max_group_len,
+        )
+        wandb_group_name = wandb_group_name[:max_group_len]
     
     output_dir = Path(output_base_dir) / dir_name
     output_dir.mkdir(parents=True, exist_ok=True)
