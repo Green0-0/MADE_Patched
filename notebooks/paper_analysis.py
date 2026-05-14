@@ -10,7 +10,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "noteboo
 from results_analysis_utils import (
     load_baseline_results,
     compute_discovery_curve_metrics,
+    load_experiment_metadata,
 )
+from made.evaluation.metrics import DiscoveryCurveMetrics
 
 BASELINES_DIR = Path("results/baselines")
 
@@ -21,6 +23,13 @@ EXPERIMENT_PREFIXES = {
     "Chemeleon + LLM Planner": "chemeleon_llm_planner_systems",
     "LLM Orchestrator": "llm_react_orchestrator_systems",
 }
+
+STRATEGY_ORDER = [
+    "Random Generator (Baseline)",
+    "Chemeleon + MLIP",
+    "Chemeleon + LLM Planner",
+    "LLM Orchestrator",
+]
 
 def aggregate_metrics(per_episode: list[dict]) -> dict:
     """Replicates run_multi_systems.py metric aggregation across episodes."""
@@ -45,6 +54,95 @@ def aggregate_metrics(per_episode: list[dict]) -> dict:
             }
     return summary
 
+
+def dataset_key_from_metadata(metadata: dict | None, fallback_name: str) -> str:
+    if metadata and isinstance(metadata, dict):
+        systems_file = metadata.get("systems_file", "")
+        if isinstance(systems_file, str):
+            lowered = systems_file.lower()
+            for key in ("ternary", "quaternary", "quinary"):
+                if key in lowered:
+                    return key
+    lowered = fallback_name.lower()
+    for key in ("ternary", "quaternary", "quinary"):
+        if key in lowered:
+            return key
+    return "unknown"
+
+
+def summarize_values(values: list[float]) -> dict[str, float]:
+    if not values:
+        return {"mean": 0.0, "std": 0.0, "sem": 0.0}
+    arr = np.array(values, dtype=float)
+    n = len(arr)
+    return {
+        "mean": float(np.mean(arr)),
+        "std": float(np.std(arr)),
+        "sem": float(np.std(arr) / np.sqrt(n)) if n > 0 else 0.0,
+    }
+
+
+def compute_af_ef_values(
+    histories: list[list[dict]],
+    baseline_histories: list[list[dict]],
+    budget: int,
+) -> tuple[list[float], list[float]]:
+    if not histories or not baseline_histories:
+        return [], []
+
+    # Build averaged baseline curve for the dataset
+    query_grid = np.arange(1, budget + 1, dtype=float)
+    interpolated = []
+    for history in baseline_histories:
+        queries = [h.get("queries_used", 0) for h in history]
+        discoveries = [h.get("num_newly_discovered_stable", 0) for h in history]
+        if not queries:
+            continue
+        interp = np.interp(
+            query_grid,
+            np.array(queries, dtype=float),
+            np.array(discoveries, dtype=float),
+            left=0.0,
+            right=float(discoveries[-1]),
+        )
+        interpolated.append(interp)
+
+    if not interpolated:
+        return [], []
+
+    mean_curve = np.mean(np.stack(interpolated, axis=0), axis=0)
+    fake_baseline = [
+        {"queries_used": float(q), "num_newly_discovered_stable": float(d)}
+        for q, d in zip(query_grid, mean_curve)
+    ]
+
+    avg_baseline_final = float(mean_curve[-1])
+    target = int(avg_baseline_final)
+
+    af_values: list[float] = []
+    ef_values: list[float] = []
+
+    for history in histories:
+        ef = DiscoveryCurveMetrics.enhancement_factor(
+            proposal_metrics_history=history,
+            baseline_metrics_history=fake_baseline,
+            metric_key="num_newly_discovered_stable",
+        )
+        ef_values.append(float(ef))
+
+        if avg_baseline_final < 1.0:
+            af_values.append(float(budget))
+        else:
+            af = DiscoveryCurveMetrics.acceleration_factor(
+                proposal_metrics_history=history,
+                baseline_metrics_history=fake_baseline,
+                target_discoveries=target,
+                metric_key="num_newly_discovered_stable",
+            )
+            af_values.append(float(af))
+
+    return af_values, ef_values
+
 def get_chunk_dirs(prefix):
     """Finds all SLURM array job chunk directories for a given prefix."""
     chunk_dirs = []
@@ -59,53 +157,132 @@ def get_chunk_dirs(prefix):
 
 def analyze_results():
     table_data = []
-    
-    # 1. Load baseline for relative metrics (AF/EF)
-    baseline_prefix = EXPERIMENT_PREFIXES["Random Generator (Baseline)"]
-    baseline_chunk_dirs = get_chunk_dirs(baseline_prefix)
-    
-    baseline_histories = []
-    if baseline_chunk_dirs:
-        for chunk_dir in baseline_chunk_dirs:
-            hist, _ = load_baseline_results(chunk_dir)
-            baseline_histories.extend([h for sys_hists in hist.values() for h in sys_hists])
-    else:
-        print(f"Warning: Baseline chunks for '{baseline_prefix}' not found. Relative metrics (AF and EF) will not be computed.")
-    
-    # 2. Process each strategy
+
+    # 1. Load all results grouped by strategy and dataset
+    strategy_data: dict[str, dict[str, dict[str, list]]] = {}
     for strategy_name, prefix in EXPERIMENT_PREFIXES.items():
         chunk_dirs = get_chunk_dirs(prefix)
         if not chunk_dirs:
             print(f"Skipping {strategy_name}: no directories found matching prefix '{prefix}'")
             continue
-            
-        print(f"Processing {strategy_name} ({len(chunk_dirs)} slurm tasks found)...")
-        
-        strategy_histories = []
-        all_final_metrics_list = []
-        
+
+        per_dataset: dict[str, dict[str, list]] = {}
         for chunk_dir in chunk_dirs:
+            metadata = load_experiment_metadata(chunk_dir)
+            dataset_key = dataset_key_from_metadata(metadata, chunk_dir.name)
+
             hist, final = load_baseline_results(chunk_dir)
-            strategy_histories.extend([h for sys_hists in hist.values() for h in sys_hists])
-            all_final_metrics_list.extend([f for sys_finals in final.values() for f in sys_finals])
-            
-        # Compute summary metrics from all aggregated final_metrics across array chunks
-        summary_metrics = aggregate_metrics(all_final_metrics_list)
-        
-        # Compute AF and EF
-        is_baseline = (strategy_name == "Random Generator (Baseline)")
+            dataset_entry = per_dataset.setdefault(
+                dataset_key,
+                {"histories": {}, "finals": {}},
+            )
+            for system_id, sys_hists in hist.items():
+                dataset_entry["histories"].setdefault(system_id, []).extend(sys_hists)
+            for system_id, sys_finals in final.items():
+                dataset_entry["finals"].setdefault(system_id, []).extend(sys_finals)
+
+        strategy_data[strategy_name] = per_dataset
+
+    # 2. Compute common systems per dataset across all strategies
+    datasets = set()
+    for per_dataset in strategy_data.values():
+        datasets.update(per_dataset.keys())
+
+    common_systems: dict[str, set[str]] = {}
+    for dataset_key in sorted(datasets):
+        system_sets = []
+        for strategy in STRATEGY_ORDER:
+            systems = set(
+                strategy_data.get(strategy, {})
+                .get(dataset_key, {})
+                .get("histories", {})
+                .keys()
+            )
+            system_sets.append(systems)
+        if system_sets:
+            intersection = set.intersection(*system_sets)
+            if intersection:
+                common_systems[dataset_key] = intersection
+
+    if not common_systems:
+        print("No common systems found across strategies. Aborting.")
+        return
+
+    # 3. Process each strategy using dataset-matched pooled baselines
+    baseline_name = "Random Generator (Baseline)"
+    for strategy_name in STRATEGY_ORDER:
+        if strategy_name not in strategy_data:
+            continue
+
+        print(f"Processing {strategy_name}...")
+
+        combined_histories: list[list[dict]] = []
+        combined_finals: list[dict] = []
+        af_values: list[float] = []
+        ef_values: list[float] = []
+
+        for dataset_key, systems in common_systems.items():
+            strategy_dataset = strategy_data.get(strategy_name, {}).get(dataset_key, {})
+            baseline_dataset = strategy_data.get(baseline_name, {}).get(dataset_key, {})
+
+            if not strategy_dataset or not baseline_dataset:
+                continue
+
+            dataset_histories: list[list[dict]] = []
+            dataset_finals: list[dict] = []
+            baseline_histories: list[list[dict]] = []
+
+            for system_id in systems:
+                dataset_histories.extend(
+                    strategy_dataset.get("histories", {}).get(system_id, [])
+                )
+                dataset_finals.extend(
+                    strategy_dataset.get("finals", {}).get(system_id, [])
+                )
+                baseline_histories.extend(
+                    baseline_dataset.get("histories", {}).get(system_id, [])
+                )
+
+            if not dataset_histories:
+                continue
+
+            combined_histories.extend(dataset_histories)
+            combined_finals.extend(dataset_finals)
+
+            if strategy_name != baseline_name and baseline_histories:
+                budget = 50
+                af_vals, ef_vals = compute_af_ef_values(
+                    dataset_histories, baseline_histories, budget
+                )
+                af_values.extend(af_vals)
+                ef_values.extend(ef_vals)
+
+        # Compute summary metrics from all aggregated final_metrics across datasets
+        summary_metrics = aggregate_metrics(combined_finals)
+
+        # Compute AUDC over the combined histories
         curve_metrics = compute_discovery_curve_metrics(
-            strategy_histories, 
-            baseline_histories=baseline_histories if baseline_histories else None,
-            is_baseline=is_baseline,
+            combined_histories,
+            baseline_histories=None,
+            is_baseline=False,
         )
         
         # Extract metrics
         row = {"Policy": strategy_name}
         
         # Discovery Performance
-        row["AF"] = curve_metrics.get("acceleration_factor", {}).get("mean", None)
-        row["EF"] = curve_metrics.get("enhancement_factor", {}).get("mean", None)
+        if strategy_name == baseline_name:
+            row["AF"] = 1.0
+            row["EF"] = 1.0
+            af_sem = 0.0
+            ef_sem = 0.0
+        else:
+            af_summary = summarize_values(af_values)
+            ef_summary = summarize_values(ef_values)
+            row["AF"] = af_summary.get("mean")
+            row["EF"] = ef_summary.get("mean")
+            af_sem = af_summary.get("sem", 0.0)
+            ef_sem = ef_summary.get("sem", 0.0)
         
         # Area Under Discovery Curve (normalized)
         audc = curve_metrics.get("area_under_discovery_curve_normalized", {})
@@ -126,10 +303,8 @@ def analyze_results():
         
         # Format AF and EF if they exist
         if row["AF"] is not None:
-            af_sem = curve_metrics.get("acceleration_factor", {}).get("sem", 0)
             row["AF"] = f"{row['AF']:.2f}({af_sem:.2f})"
         if row["EF"] is not None:
-            ef_sem = curve_metrics.get("enhancement_factor", {}).get("sem", 0)
             row["EF"] = f"{row['EF']:.2f}({ef_sem:.2f})"
             
         table_data.append(row)

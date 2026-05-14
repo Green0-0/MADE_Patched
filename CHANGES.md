@@ -71,7 +71,7 @@ pred = MockPred()
 
 10. Cleaned up wandb to be neater and properly group.
 
-1. Fix in notebooks/results_analysis_utils.py where the arguments were wrong.
+11. Series of changes in results_analysis_utils.py where the arguments and interpretation of some metrics were incorrect. Needs review.
 
 TODO:
 - Remove DSPY, use native fc + thinking
