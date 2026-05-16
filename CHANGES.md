@@ -73,6 +73,8 @@ pred = MockPred()
 
 11. Series of changes in results_analysis_utils.py where the arguments and interpretation of some metrics were incorrect. Needs review.
 
+12. One OOM fix in the grid_search.py diversity planner, due to naive 3D broadcasting.
+
 TODO:
 - Remove DSPY, use native fc + thinking
 - Use one vLLM/TabbyAPI host on a master server, have jobs connect to that, downgrade jobs to a5000s and use a single rtx pro for the master server.
