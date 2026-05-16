@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --mem=128G
 #SBATCH --gres=gpu:a5000:1
 #SBATCH --array=1-10
 

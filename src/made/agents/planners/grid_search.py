@@ -18,6 +18,7 @@ import numpy as np
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
+from scipy.spatial.distance import cdist
 
 from made.evaluation.metrics import is_smact_valid
 from made.utils.convex_hull_utils import safe_e_above_hull
@@ -405,24 +406,14 @@ class DiversitySelectionStrategy(SelectionStrategy):
             distances: matrix of distances, shape: (n_candidates, n_references)
         """
         if self.distance_metric == "euclidean":
-            diff = candidate_matrix[:, None, :] - reference_matrix[None, :, :]
-            distances = np.sqrt(np.sum(diff**2, axis=2))
+            return cdist(candidate_matrix, reference_matrix, metric="euclidean")
         elif self.distance_metric == "manhattan":
-            diff = candidate_matrix[:, None, :] - reference_matrix[None, :, :]
-            distances = np.sum(np.abs(diff), axis=2)
+            return cdist(candidate_matrix, reference_matrix, metric="cityblock")
         elif self.distance_metric == "cosine":
-            cand_norms = np.linalg.norm(candidate_matrix, axis=1, keepdims=True)
-            ref_norms = np.linalg.norm(reference_matrix, axis=1, keepdims=True)
-            cand_norms = np.where(cand_norms == 0, 1, cand_norms)
-            ref_norms = np.where(ref_norms == 0, 1, ref_norms)
-            cand_norm = candidate_matrix / cand_norms
-            ref_norm = reference_matrix / ref_norms
-            cos_sim = np.dot(cand_norm, ref_norm.T)
-            distances = 1.0 - cos_sim
+            return cdist(candidate_matrix, reference_matrix, metric="cosine")
         else:
             raise ValueError(f"Unknown distance metric: {self.distance_metric}")
 
-        return distances
 
     def _create_comparison_mask(self, compositions: list[Composition]) -> np.ndarray:
         """Create mask matrix for compositions that should not be compared.
