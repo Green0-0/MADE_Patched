@@ -19,15 +19,23 @@ BASELINES_DIR = Path("results/baselines")
 # Define the base names (prefixes) of the experiments you want to analyze
 EXPERIMENT_PREFIXES = {
     "Random Generator (Baseline)": "random_generator_baseline_systems",
-    "Chemeleon + MLIP": "chemeleon_mlip_ranking_chain_filter_systems",
+    "Random + Diversity Planner": "random_generator_diversity_planner_comp_systems",
+    "Random + LLM Planner": "random_generator_llm_planner_systems",
+    "Chemeleon (Baseline)": "chemeleon_generative_baseline_systems",
+    "Chemeleon + Diversity Planner": "chemeleon_diversity_planner_comp_systems",
     "Chemeleon + LLM Planner": "chemeleon_llm_planner_systems",
+    "Chemeleon + MLIP": "chemeleon_mlip_ranking_chain_filter_systems",
     "LLM Orchestrator": "llm_react_orchestrator_systems",
 }
 
 STRATEGY_ORDER = [
     "Random Generator (Baseline)",
-    "Chemeleon + MLIP",
+    "Random + Diversity Planner",
+    "Random + LLM Planner",
+    "Chemeleon (Baseline)",
+    "Chemeleon + Diversity Planner",
     "Chemeleon + LLM Planner",
+    "Chemeleon + MLIP",
     "LLM Orchestrator",
 ]
 
