@@ -216,13 +216,3 @@ results/
 *.json
 *.pdf
 
-wandb/
-
-# checkpoints
-*.ckpt
-ckpts
-checkpoints
-
-# include data
-!data/*
-!data/*/*
