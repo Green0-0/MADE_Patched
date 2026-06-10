@@ -1,0 +1,103 @@
+agent:
+  planner:
+    _target_: made.agents.planners.grid_search.GridSearchPlanner
+    max_stoichiometry: 20
+    num_compositions: 8
+    num_candidates: 32
+    seed: null
+    selection_strategy: random
+    return_all_compositions: true
+  generator:
+    _target_: made.agents.generators.CachedGenerator
+    num_initial_candidates: 1024
+    cache_by_composition: false
+    base_generator:
+      _target_: made.agents.generators.ChemeleonGenerator
+      task: csp
+      batch_size: 256
+      device: cuda
+      output_dir: null
+  filter:
+    _target_: made.agents.filters.FilterChain
+    filters:
+    - _target_: made.agents.filters.MinDistanceFilter
+      min_distance_threshold: 0.5
+    - _target_: made.agents.filters.SMACTValidityFilter
+    - _target_: made.agents.filters.UniquenessFilter
+      ltol: 0.2
+      stol: 0.3
+      angle_tol: 5.0
+      primitive_cell: true
+  scorer:
+    oracle:
+      _target_: made.oracles.MACEOracle
+      model_name: mp
+      model: medium
+      device: auto
+      default_dtype: float32
+      dispersion: false
+      element_reference_energies_path: ./data/2023-02-07-mp-elemental-reference-entries.json
+      relax: true
+      relax_kwargs:
+        optimizer: fire
+        fmax: 0.02
+        steps: 500
+        relax_unit_cell: true
+      num_workers: 16
+    _target_: made.agents.scorers.OracleScorer
+    score_function: e_above_hull
+    enable_cache: true
+    rerank_on_state_change: true
+  _target_: made.agents.OneShotWorkflowAgent
+  max_stoichiometry: 20
+dataset:
+  _target_: made.data.PhaseDiagramDataset
+  elements:
+  - Li
+  - O
+  thermo_types:
+  - GGA_GGA+U
+environment:
+  _target_: made.envs.ConvexHullEnvironment
+  budget: 50
+  start_with_all_stable: true
+  compute_elemental_from_oracle: true
+  stability_tolerance: 0.1
+  include_near_stable_from_ground_truth: true
+  filter_by_smact: true
+  max_stoichiometry: 20
+  structure_matcher_ltol: 0.2
+  structure_matcher_stol: 0.3
+  structure_matcher_angle_tol: 5
+  structure_matcher_primitive_cell: true
+logger:
+  use_wandb: true
+  wandb_project: made-baselines
+  wandb_entity: num110010
+  wandb_run_name: null
+  wandb_tags:
+  - benchmark
+  wandb_group: chemeleon_mlip_ranking_chain_filter_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_50queries_100stabilitymeV
+oracle:
+  _target_: made.oracles.ORBOracle
+  model_name: orb-v3-conservative-inf-omat
+  device: auto
+  element_reference_energies_path: ./data/2023-02-07-mp-elemental-reference-entries.json
+  relax: true
+  relax_kwargs:
+    optimizer: fire
+    fmax: 0.02
+    steps: 500
+    relax_unit_cell: true
+  num_workers: 1
+experiment:
+  output_dir: results/baselines/20260512-010008/chemeleon_mlip_ranking_chain_filter_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_idx5_50queries_100stabilitymeV
+  num_episodes: 5
+  seed: null
+  infra: local
+  verbose: true
+  logging_level: INFO
+  systems: []
+  systems_file: ./data/systems_10_mp_20/systems_quinary_n10_maxatoms20_intermetallic_smact.json
+  max_systems: 10
+  system_index: 5

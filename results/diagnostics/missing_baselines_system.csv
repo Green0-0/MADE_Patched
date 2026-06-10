@@ -1,0 +1,13 @@
+strategy,dataset,system,budget,stability_tolerance
+random_generator_diversity_planner_comp,ternary,Ca-Pd-Sn-W,50,0.1
+random_generator_diversity_planner_comp,ternary,Au-Tb-V-Y,50,0.1
+chemeleon_generative_baseline,ternary,Ca-Pd-Sn-W,50,0.1
+chemeleon_generative_baseline,ternary,Au-Tb-V-Y,50,0.1
+chemeleon_diversity_planner_comp,ternary,Ca-Pd-Sn-W,50,0.1
+chemeleon_diversity_planner_comp,ternary,Au-Tb-V-Y,50,0.1
+chemeleon_llm_planner,ternary,Ca-Pd-Sn-W,50,0.1
+chemeleon_llm_planner,ternary,Au-Tb-V-Y,50,0.1
+chemeleon_mlip_ranking_chain_filter,ternary,Au-Tb-V-Y,50,0.1
+chemeleon_mlip_ranking_chain_filter,ternary,Ca-Pd-Sn-W,50,0.1
+llm_react_orchestrator,ternary,Ca-Pd-Sn-W,50,0.1
+llm_react_orchestrator,ternary,Au-Tb-V-Y,50,0.1

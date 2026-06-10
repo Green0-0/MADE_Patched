@@ -1,0 +1,27 @@
+{
+  "agent_config": "chemeleon_diversity_planner_comp",
+  "systems_file": "./data/systems_10_mp_20/systems_quaternary_n10_maxatoms20_intermetallic_smact.json",
+  "max_systems": 10,
+  "budget": 50,
+  "num_episodes": 5,
+  "infra": "local",
+  "seed": null,
+  "max_stoichiometry": 20,
+  "config_overrides": [
+    "agent=chemeleon_diversity_planner_comp",
+    "experiment.systems_file=./data/systems_10_mp_20/systems_quaternary_n10_maxatoms20_intermetallic_smact.json",
+    "experiment.max_systems=10",
+    "environment.budget=50",
+    "experiment.num_episodes=5",
+    "experiment.infra=local",
+    "experiment.output_dir=results/baselines/20260514-171458/chemeleon_diversity_planner_comp_systems_quaternary_n10_maxatoms20_intermetallic_smact_10systems_idx1_50queries_100stabilitymeV",
+    "logger.use_wandb=True",
+    "logger.wandb_project=made-baselines",
+    "environment.stability_tolerance=0.1",
+    "++agent.max_stoichiometry=20",
+    "++agent.planner.max_stoichiometry=20",
+    "environment.max_stoichiometry=20",
+    "++logger.wandb_group=chemeleon_diversity_planner_comp_systems_quaternary_n10_maxatoms20_intermetallic_smact_10systems_50queries_100stabilitymeV",
+    "+experiment.system_index=1"
+  ]
+}

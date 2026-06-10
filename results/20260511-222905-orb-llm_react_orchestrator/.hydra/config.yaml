@@ -1,0 +1,203 @@
+agent:
+  scorers:
+    diversity:
+      _target_: made.agents.scorers.CompositionDiversity
+      distance_metric: euclidean
+      seed: null
+    random:
+      _target_: made.agents.scorers.RandomSelector
+      seed: null
+    llm:
+      _target_: made.agents.scorers.LLMScorer
+      llm_config:
+        model: openai/QuantTrio/Qwen3.5-9B-AWQ
+        max_tokens: 16384
+        temperature: 1.0
+        top_p: 0.95
+        top_k: 20
+        cache: false
+      max_candidates: 50
+      max_context_entries: 20
+      context_config:
+        objective_prompt: 'You are selecting one candidate structure to evaluate in
+          a material discovery experiment next.
+
+
+          OBJECTIVE: Find as many NOVEL, UNIQUE, STABLE (or metastable) structures
+          as possible. Choose the best candidate structure index from the list of
+          candidates.
+
+          - Structures with e_above_hull <= stability_tolerance are stable/metastable.
+
+          - NOVEL: Not already known on the convex hull (is_newly_discovered=True).
+
+          - UNIQUE: Structurally distinct from previously evaluated structures.
+
+          - Entries marked [STABLE, NOVEL] or is_stable_or_metastable=True with is_newly_discovered=True
+          are successful discoveries.
+
+
+          IMPORTANT:
+
+          - Multiple different structures can exist as stable/metastable polymorphs
+          at the same composition
+
+          - One unstable structure for a composition does NOT mean all structures
+          for that composition are unstable.
+
+          - Balance exploration (diverse structures) vs exploitation (unique structures
+          similar to previously successful structures).
+
+          '
+        include_structure_info: true
+        include_composition_counter: true
+        include_recent_trial: true
+        previous_observations: 1
+    oracle:
+      oracle:
+        _target_: made.oracles.MACEOracle
+        model_name: mp
+        model: medium
+        device: auto
+        default_dtype: float32
+        dispersion: false
+        element_reference_energies_path: ./data/2023-02-07-mp-elemental-reference-entries.json
+        relax: true
+        relax_kwargs:
+          optimizer: fire
+          fmax: 0.02
+          steps: 500
+          relax_unit_cell: true
+        num_workers: 16
+      _target_: made.agents.scorers.OracleScorer
+      score_function: e_above_hull
+      enable_cache: true
+      rerank_on_state_change: true
+  generators:
+    chemeleon:
+      _target_: made.agents.generators.ChemeleonGenerator
+      task: csp
+      batch_size: 32
+      device: cuda
+      output_dir: null
+    random:
+      _target_: made.agents.generators.RandomGenerator
+      lattice_length_range:
+      - 3.0
+      - 15.0
+      lattice_angle_range:
+      - 60.0
+      - 120.0
+      seed: null
+  _target_: made.agents.LLMReActOrchestratorAgent
+  static_filters:
+    _target_: made.agents.filters.FilterChain
+    filters:
+    - _target_: made.agents.filters.MinDistanceFilter
+      min_distance_threshold: 0.5
+    - _target_: made.agents.filters.SMACTValidityFilter
+  uniqueness_filter:
+    _target_: made.agents.filters.UniquenessFilter
+    ltol: 0.2
+    stol: 0.3
+    angle_tol: 5.0
+    primitive_cell: true
+  llm_config:
+    model: openai/QuantTrio/Qwen3.5-9B-AWQ
+    max_tokens: 16384
+    temperature: 1.0
+    top_p: 0.95
+    top_k: 20
+    cache: false
+  context_config:
+    include_structure_in_history: true
+    include_structure_in_known_materials: false
+    orchestration_prompt: "You are an autonomous materials discovery agent.\n\nOBJECTIVE:\
+      \ Find as many NOVEL, UNIQUE, STABLE (or metastable) structures as possible.\
+      \ Use the available tools, then select ONE composition + structure for oracle\
+      \ evaluation.\n\n- Structures with e_above_hull <= stability_tolerance are stable/metastable\
+      \ (SUCCESS!)\n- Entries marked [STABLE, NOVEL] in evaluation_history are successful\
+      \ discoveries\n- We want to MAXIMIZE the number of novel stable structures found\n\
+      \nIMPORTANT: Different structures for the SAME composition can have DIFFERENT\
+      \ stabilities.\n- One unstable structure for a composition does NOT mean all\
+      \ structures for that composition are unstable.\n- Generators produce many different\
+      \ structures for the same composition\n\nUNIT CELL SIZE MATTERS:\n- Compositions\
+      \ are stored by REDUCED formula (e.g., Li2O)\n- But you can generate different\
+      \ UNIT CELL SIZES: Li2O, Li4O2, Li6O3, etc.\n- These occupy the same position\
+      \ on the phase diagram but are different structures\n- Different unit cell sizes\
+      \ often have different stabilities\n\nBUFFER ORGANIZATION:\n- Buffer is organized\
+      \ by reduced formula: {composition: [structures]}\n- Each structure shows its\
+      \ full formula (unit cell size) and index\n- Selection is two-step: pick composition,\
+      \ then pick structure index\n    \nWORKFLOW:\n1. Decide which composition(s)\
+      \ to explore based on evaluation history\n2. Generate/create candidate structures\
+      \ for those compositions\n3. Score candidates if needed to prioritize within\
+      \ each composition\n4. List compositions and query structures to decide what\
+      \ to evaluate\n5. Select ONE composition + structure for oracle evaluation\n\
+      \nSTRATEGY GUIDANCE:\n- If buffer empty/small: Generate more structures (diverse\
+      \ compositions OR more for promising ones)\n- If buffer has candidates: Score\
+      \ them, query compositions, select best\n- Balance exploration (new compositions)\
+      \ vs exploitation (more structures for successful compositions)\n"
+  enabled_tools:
+  - generate_structures
+  - create_structure
+  - score_buffer
+  - list_compositions
+  - query_structures
+  - get_buffer_stats
+  - select_for_evaluation
+  max_iters: 10
+  max_stoichiometry: 20
+  max_history_length: 20
+  planner:
+    max_stoichiometry: 20
+dataset:
+  _target_: made.data.PhaseDiagramDataset
+  elements:
+  - Li
+  - O
+  thermo_types:
+  - GGA_GGA+U
+environment:
+  _target_: made.envs.ConvexHullEnvironment
+  budget: 50
+  start_with_all_stable: true
+  compute_elemental_from_oracle: true
+  stability_tolerance: 0.1
+  include_near_stable_from_ground_truth: true
+  filter_by_smact: true
+  max_stoichiometry: 20
+  structure_matcher_ltol: 0.2
+  structure_matcher_stol: 0.3
+  structure_matcher_angle_tol: 5
+  structure_matcher_primitive_cell: true
+logger:
+  use_wandb: true
+  wandb_project: made-baselines
+  wandb_entity: num110010
+  wandb_run_name: null
+  wandb_tags:
+  - benchmark
+  wandb_group: llm_react_orchestrator_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_50queries_100stabilitymeV
+oracle:
+  _target_: made.oracles.ORBOracle
+  model_name: orb-v3-conservative-inf-omat
+  device: auto
+  element_reference_energies_path: ./data/2023-02-07-mp-elemental-reference-entries.json
+  relax: true
+  relax_kwargs:
+    optimizer: fire
+    fmax: 0.02
+    steps: 500
+    relax_unit_cell: true
+  num_workers: 1
+experiment:
+  output_dir: results/baselines/20260511-222902/llm_react_orchestrator_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_idx0_50queries_100stabilitymeV
+  num_episodes: 5
+  seed: null
+  infra: local
+  verbose: true
+  logging_level: INFO
+  systems: []
+  systems_file: ./data/systems_10_mp_20/systems_quinary_n10_maxatoms20_intermetallic_smact.json
+  max_systems: 10
+  system_index: 0

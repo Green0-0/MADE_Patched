@@ -1,0 +1,25 @@
+{
+  "results": {
+    "chemeleon_generative_baseline": "results/baselines/20260514-162259/chemeleon_generative_baseline_systems_ternary_n10_maxatoms20_intermetallic_smact_10systems_idx7_50queries_100stabilitymeV"
+  },
+  "args": {
+    "agent_configs": [
+      "chemeleon_generative_baseline"
+    ],
+    "systems_file": "./data/systems_10_mp_20/systems_ternary_n10_maxatoms20_intermetallic_smact.json",
+    "max_systems": 10,
+    "system_index": 7,
+    "budget": 50,
+    "num_episodes": 5,
+    "infra": "local",
+    "output_dir": "./results/baselines",
+    "seed": null,
+    "max_stoichiometry": 20,
+    "stability_tolerance": 0.1,
+    "use_wandb": true,
+    "wandb_project": "made-baselines",
+    "wandb_tags": null,
+    "stop_on_error": false,
+    "resume": true
+  }
+}

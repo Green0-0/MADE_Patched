@@ -1,0 +1,495 @@
+{
+  "episodes": 5,
+  "summary": {
+    "final/convex_hull_e_above_hull_max": {
+      "mean": 38.84030440302456,
+      "std": 0.4626933568711772,
+      "sem": 0.2069227597403043
+    },
+    "final/convex_hull_e_above_hull_mean": {
+      "mean": 2.1270518165680974,
+      "std": 0.7514742942072153,
+      "sem": 0.336069521038202
+    },
+    "final/convex_hull_e_above_hull_min": {
+      "mean": 0.03337870491875652,
+      "std": 0.0064909818307475045,
+      "sem": 0.0029028553228534907
+    },
+    "final/convex_hull_e_above_hull_std": {
+      "mean": 8.11307853335125,
+      "std": 1.606275797760912,
+      "sem": 0.7183483748812206
+    },
+    "final/convex_hull_energy_per_atom_max": {
+      "mean": 33.370762536331355,
+      "std": 0.4324457650763581,
+      "sem": 0.19339562545852826
+    },
+    "final/convex_hull_energy_per_atom_mean": {
+      "mean": -3.5981802905026257,
+      "std": 0.7514746180652119,
+      "sem": 0.336069665871901
+    },
+    "final/convex_hull_energy_per_atom_min": {
+      "mean": -7.140877591646634,
+      "std": 0.028067580898255687,
+      "sem": 0.012552203770494864
+    },
+    "final/convex_hull_energy_per_atom_std": {
+      "mean": 8.222224350604638,
+      "std": 1.5407134223108916,
+      "sem": 0.689027989226699
+    },
+    "final/convex_hull_formation_energy_per_atom_max": {
+      "mean": 38.32226723270478,
+      "std": 0.3473302149076441,
+      "sem": 0.1553307942346206
+    },
+    "final/convex_hull_formation_energy_per_atom_mean": {
+      "mean": 1.6709338048207663,
+      "std": 0.7514756173627457,
+      "sem": 0.33607011277134413
+    },
+    "final/convex_hull_formation_energy_per_atom_min": {
+      "mean": -0.685066890472021,
+      "std": 0.03161050206534448,
+      "sem": 0.01413664628420155
+    },
+    "final/convex_hull_formation_energy_per_atom_std": {
+      "mean": 8.116882312744718,
+      "std": 1.6056334569900113,
+      "sem": 0.71806111135553
+    },
+    "final/convex_hull_stable_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/convex_hull_stable_fraction": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/discovery_curve_acceleration_factor": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/discovery_curve_area_under_discovery_curve": {
+      "mean": 128.5,
+      "std": 24.657656011875904,
+      "sem": 11.027239001672177
+    },
+    "final/discovery_curve_area_under_discovery_curve_normalized": {
+      "mean": 0.1028,
+      "std": 0.019726124809500725,
+      "sem": 0.008821791201337742
+    },
+    "final/discovery_curve_enhancement_factor": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/discovery_efficiency": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l1_distance_max": {
+      "mean": 1.8333333333333335,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l1_distance_mean": {
+      "mean": 0.9410931129484235,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l1_distance_min": {
+      "mean": 0.26666666666666666,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l1_distance_std": {
+      "mean": 0.35768832487597557,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l2_distance_max": {
+      "mean": 1.138501962784273,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l2_distance_mean": {
+      "mean": 0.5556407093275108,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l2_distance_min": {
+      "mean": 0.18283138210064528,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_l2_distance_std": {
+      "mean": 0.21522421995564006,
+      "std": 2.7755575615628914e-17,
+      "sem": 1.2412670766236365e-17
+    },
+    "final/diversity_all_composition_unique_composition_count": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_composition_unique_composition_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_structure_amd_distance_max": {
+      "mean": 12.140778455970837,
+      "std": 1.877256573092872,
+      "sem": 0.8395346617287929
+    },
+    "final/diversity_all_structure_amd_distance_mean": {
+      "mean": 2.9356337187799264,
+      "std": 0.2395455657065974,
+      "sem": 0.10712803372571884
+    },
+    "final/diversity_all_structure_amd_distance_min": {
+      "mean": 0.15074924003023327,
+      "std": 0.019740941995356164,
+      "sem": 0.008828417648299343
+    },
+    "final/diversity_all_structure_lattice_parameter_variance": {
+      "mean": 11.8228897475698,
+      "std": 0.5549596843170581,
+      "sem": 0.24818551578095316
+    },
+    "final/diversity_all_structure_spacegroup_entropy": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_structure_unique_spacegroups_count": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_structure_unique_spacegroups_fraction": {
+      "mean": 0.02,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_structure_unique_structure_count": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_all_structure_unique_structure_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_stable_composition_l1_distance_max": {
+      "mean": 1.2943589743589743,
+      "std": 0.521269880166159,
+      "sem": 0.2331189773349402
+    },
+    "final/diversity_stable_composition_l1_distance_mean": {
+      "mean": 0.8857221296075786,
+      "std": 0.28646550701815554,
+      "sem": 0.12811126938030776
+    },
+    "final/diversity_stable_composition_l1_distance_min": {
+      "mean": 0.3923809523809524,
+      "std": 0.07066897698700629,
+      "sem": 0.03160412728866287
+    },
+    "final/diversity_stable_composition_l1_distance_std": {
+      "mean": 0.3223116411720749,
+      "std": 0.19921506626664184,
+      "sem": 0.08909168606286728
+    },
+    "final/diversity_stable_composition_l2_distance_max": {
+      "mean": 0.8131173082592088,
+      "std": 0.36179551285221034,
+      "sem": 0.16179987213838823
+    },
+    "final/diversity_stable_composition_l2_distance_mean": {
+      "mean": 0.5315695962007647,
+      "std": 0.17608851610852252,
+      "sem": 0.07874917841514462
+    },
+    "final/diversity_stable_composition_l2_distance_min": {
+      "mean": 0.2291205236017185,
+      "std": 0.024007249379115105,
+      "sem": 0.010736368312898198
+    },
+    "final/diversity_stable_composition_l2_distance_std": {
+      "mean": 0.190937410151932,
+      "std": 0.12234346239019364,
+      "sem": 0.054713659701432375
+    },
+    "final/diversity_stable_composition_unique_composition_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/diversity_stable_composition_unique_composition_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_stable_structure_amd_distance_max": {
+      "mean": 5.6497157009776275,
+      "std": 1.573631769523151,
+      "sem": 0.7037495216414095
+    },
+    "final/diversity_stable_structure_amd_distance_mean": {
+      "mean": 3.1762305744259507,
+      "std": 0.734183808046842,
+      "sem": 0.32833698055447913
+    },
+    "final/diversity_stable_structure_amd_distance_min": {
+      "mean": 1.389194635838841,
+      "std": 1.1715521481990199,
+      "sem": 0.5239340485117833
+    },
+    "final/diversity_stable_structure_lattice_parameter_variance": {
+      "mean": 7.808806027727042,
+      "std": 0.8190313082595743,
+      "sem": 0.36628193619379856
+    },
+    "final/diversity_stable_structure_spacegroup_entropy": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_stable_structure_unique_spacegroups_count": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/diversity_stable_structure_unique_spacegroups_fraction": {
+      "mean": 0.25357142857142856,
+      "std": 0.13382138567996568,
+      "sem": 0.05984674304472403
+    },
+    "final/diversity_stable_structure_unique_structure_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/diversity_stable_structure_unique_structure_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/novelty_novel_structure_count": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/novelty_novel_structure_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/novelty_stable_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/novelty_stable_fraction": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/novelty_stable_novel_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/novelty_stable_novel_fraction": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/novelty_stable_unique_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/novelty_stable_unique_fraction": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/novelty_stable_unique_novel_count": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/novelty_stable_unique_novel_fraction": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/novelty_unique_structure_count": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/novelty_unique_structure_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_correct_stable_formulas": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_correct_stable_structures": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_ground_truth_stable_formulas": {
+      "mean": 29.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_ground_truth_stable_structures": {
+      "mean": 45.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_gt_formulas_missing_initial": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_gt_structures_missing_initial": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_initial_structures": {
+      "mean": 45.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_newly_discovered_stable": {
+      "mean": 5.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/num_newly_discovered_structures": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/num_observed_stable_formulas": {
+      "mean": 34.0,
+      "std": 2.1908902300206643,
+      "sem": 0.9797958971132711
+    },
+    "final/precision_formula": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/precision_structure": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/queries_used": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/recall_formula": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/recall_structure": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/reference_composition_precision": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/reference_composition_recall": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/reference_structure_precision": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/reference_structure_recall": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/stable_discovery_efficiency": {
+      "mean": 0.1,
+      "std": 0.04381780460041329,
+      "sem": 0.019595917942265423
+    },
+    "final/validity_distance_and_smact_valid_count": {
+      "mean": 42.2,
+      "std": 1.4696938456699067,
+      "sem": 0.6572670690061992
+    },
+    "final/validity_distance_and_smact_valid_fraction": {
+      "mean": 0.844,
+      "std": 0.02939387691339813,
+      "sem": 0.013145341380123984
+    },
+    "final/validity_distance_valid_count": {
+      "mean": 42.2,
+      "std": 1.4696938456699067,
+      "sem": 0.6572670690061992
+    },
+    "final/validity_distance_valid_fraction": {
+      "mean": 0.844,
+      "std": 0.02939387691339813,
+      "sem": 0.013145341380123984
+    },
+    "final/validity_min_interatomic_distance_mean": {
+      "mean": 0.9184617163654231,
+      "std": 0.018733404392727547,
+      "sem": 0.008377833134426391
+    },
+    "final/validity_min_interatomic_distance_min": {
+      "mean": 0.1782816891114169,
+      "std": 0.08987096477089913,
+      "sem": 0.04019151728624385
+    },
+    "final/validity_min_interatomic_distance_std": {
+      "mean": 0.4597615392279312,
+      "std": 0.07432659237299959,
+      "sem": 0.03323986261638889
+    },
+    "final/validity_smact_valid_count": {
+      "mean": 50.0,
+      "std": 0.0,
+      "sem": 0.0
+    },
+    "final/validity_smact_valid_fraction": {
+      "mean": 1.0,
+      "std": 0.0,
+      "sem": 0.0
+    }
+  }
+}

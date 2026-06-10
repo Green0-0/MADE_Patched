@@ -1,0 +1,15 @@
+- agent=random_generator_diversity_planner_comp
+- experiment.systems_file=./data/systems_10_mp_20/systems_quinary_n10_maxatoms20_intermetallic_smact.json
+- experiment.max_systems=10
+- environment.budget=50
+- experiment.num_episodes=5
+- experiment.infra=local
+- experiment.output_dir=results/baselines/20260514-201759/random_generator_diversity_planner_comp_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_idx9_50queries_100stabilitymeV
+- logger.use_wandb=True
+- logger.wandb_project=made-baselines
+- environment.stability_tolerance=0.1
+- ++agent.max_stoichiometry=20
+- ++agent.planner.max_stoichiometry=20
+- environment.max_stoichiometry=20
+- ++logger.wandb_group=random_generator_diversity_planner_comp_systems_quinary_n10_maxatoms20_intermetallic_smact_10systems_50queries_100stabilitymeV
+- +experiment.system_index=9
