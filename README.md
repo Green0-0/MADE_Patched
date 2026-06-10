@@ -1,4 +1,4 @@
-# WARNING: THIS REPO CONTAINS THE CLOSEST I COULD REPLICATE THE MADE RESULTS. THE AF AND EF FACTORS ARE WRONG (see paper_table1_replication, trace notebooks for reference on computation and I suggest doing a diff over the original MADE repo to see changes), HOWEVER EVERYTHING ELSE IS CORRECT. A SMALL QWEN3 MODEL WAS USED TO RUN LLM EXPERIMENTS LOCALLY. THE DATA HAS BEEN UPLOADED AT `results/`
+### WARNING: THIS REPO CONTAINS THE CLOSEST I COULD REPLICATE THE MADE RESULTS. THE AF AND EF FACTORS ARE WRONG (see paper_table1_replication, trace notebooks for reference on computation and I suggest doing a diff over the original MADE repo to see changes), HOWEVER EVERYTHING ELSE IS CORRECT. A SMALL QWEN3 MODEL WAS USED TO RUN LLM EXPERIMENTS LOCALLY. THE DATA HAS BEEN UPLOADED AT `results/`
 
 
 #  MADE: MAterials Discovery Environments
